@@ -1,0 +1,6 @@
+{
+    "dependencies": "./pyproject.toml",
+    "graphs": {
+        "my_agent_cualquiera": "./main.py:app_graph"
+    }
+}
