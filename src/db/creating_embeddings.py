@@ -1,4 +1,4 @@
-from config.settings import PDF_PATH
+from config.settings import PDF_PATH, EMBEDDING_MODEL
 from loaders.pdf_loader import Load_PDF
 from src.db.chromadb import ChromaDBManager
 from uuid import uuid4
@@ -12,7 +12,7 @@ chunks, metadatas = dataPDF.get_chunks_and_metadata(pages_content)
 uuids = [str(uuid4()) for _ in range(len(chunks))]  # crear una lista de ids
 
 # Instanciar la base de datos
-chromadb_manager = ChromaDBManager()
+chromadb_manager = ChromaDBManager(embeddings_model_name=EMBEDDING_MODEL)
 
 # almacenar los chunks en la base de datos
 # Esto se debe ejecutar una sola vez

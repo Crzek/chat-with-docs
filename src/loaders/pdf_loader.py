@@ -1,6 +1,13 @@
 from langchain_community.document_loaders import PyPDFLoader
 from src.utils.text_splitters import split_text
+from pydantic import BaseModel
 import os
+
+
+class SplitConfig(BaseModel):
+    model_name: str = "gpt-4"
+    chunk_size: int = 50
+    chunk_overlap: int = 10
 
 
 class Load_PDF:
@@ -27,18 +34,28 @@ class Load_PDF:
 
         pages_content = []
         pdf_content = self.lazy_load()
+        # itera cada página del pdf
         for page in pdf_content:
             pages_content.append(page.page_content)
 
         return pages_content
 
-    def get_chunks_and_metadata(self, pages_content: list[str]) -> tuple[list, list]:
+    def get_chunks_and_metadata(
+            self,
+            pages_content: list[str],
+            split_config: SplitConfig  # configuracion para dividir el texto
+    ) -> tuple[list, list]:
         """ Dividir el texto en chunks y asociarlos con las páginas """
         chunks = []
         metadatas = []
         for page_number, page_content in enumerate(pages_content):
             # dividir el texto de la página
-            page_chunks = split_text(page_content)
+            page_chunks = split_text(
+                text=page_content,
+                model_name=split_config.model_name,
+                chunk_size=split_config.chunk_size,
+                chunk_overlap=split_config.chunk_overlap
+            )
             # agregar los chunks a la lista principal
             chunks.extend(page_chunks)
             metadatas.extend(

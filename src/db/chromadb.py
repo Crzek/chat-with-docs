@@ -3,12 +3,12 @@ from langchain_chroma import Chroma
 
 
 class ChromaDBManager:
-    def __init__(self, db_path: str = "chroma_db"):
+    def __init__(self, db_path: str = "chroma_db", embeddings_model_name: str = "text-embedding-3-small"):
         # Cargar el modelo de embeddings
-        self.embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+        self.embeddings = OpenAIEmbeddings(model=embeddings_model_name)
         # Cargar la base de datos
         self.vector_store = Chroma(
-            collection_name="my_collection",
+            collection_name="chat_docs_collection",
             embedding_function=self.embeddings,
             persist_directory=db_path
         )

@@ -1,14 +1,17 @@
-from termios import N_SLIP
 from langchain_openai.chat_models import ChatOpenAI
 from langchain_core.messages import AIMessage, HumanMessage
 from typing import Literal
 
 from src.db.chromadb import ChromaDBManager
-from src.config.settings import OPENAI_MODEL_LOWER
+from src.config.settings import OPENAI_MODEL_LOWER, EMBEDDING_MODEL
 from src.schema.schemas import LanguagueOutput, AgentState, QuestionType
+from src.utils.tools import create_appointment
 
 
 def detect_language_node(agent_state: AgentState) -> AgentState:
+    """
+    detect_language_node: detecta y guarda el idioma. Nada más.
+    """
     llm = ChatOpenAI(model=OPENAI_MODEL_LOWER)
 
     # definir el tipo de salida
@@ -24,7 +27,14 @@ def detect_language_node(agent_state: AgentState) -> AgentState:
 
 
 def detect_question_type_node(agent_state: AgentState) -> Literal["appointment_node", "query_node"]:
+    """
+    detect_question_type_node: decide a qué nodo ir (query_node o appointment_node). No necesita ser nodo.
+    """
+    print("\n mensaje\n")
+    print(agent_state.messages)
     user_message = agent_state.messages[-1].content
+    print(f"Mensaje del usuario: {user_message}\n")
+    # print(agent_state.message)
     llm = ChatOpenAI(model=OPENAI_MODEL_LOWER)
 
     # definir el tipo de salida
@@ -55,9 +65,30 @@ def appointment_node(agent_state: AgentState) -> AgentState:
     Node that handles appointment scheduling.
     """
     print("Appointment node")
+    tools = [create_appointment]
+    llm = ChatOpenAI(model=OPENAI_MODEL_LOWER).bind_tools(tools)
+    response_llm = llm.invoke(agent_state.messages)
 
-    agent_state.messages.append(AIMessage(content="Agendar cita"))
-    # agent_state.messages = [AIMessage(content="Agendar cita")]
+    # tines que tener al menos una llamada a tool
+    tool_calls = response_llm.tool_calls  # lista
+    if tool_calls:
+        fuction_result = None  # guardar el resultado de la función
+        for tool_call in tool_calls:
+
+            # miramos si la llamada a la herramienta es la correcta
+            # tools son funciones (que creas) que se pueden llamar
+            if tool_call["name"] == "create_appointment":
+                args = tool_call["args"]
+                # utilizamos la función que creamos
+                fuction_result = create_appointment.invoke(args)
+
+        agent_state.messages.append(AIMessage(content=fuction_result))
+        agent_state.messages = [AIMessage(content=fuction_result)]
+
+    else:
+        # si no hay tool_calls, solo se guarda el mensaje de la IA
+        agent_state.messages = [AIMessage(content=response_llm.content)]
+
     return agent_state
 
 
@@ -91,7 +122,7 @@ def rag_node(agent_state: AgentState) -> AgentState:
     """
     Buscar vectores que tengo guardados en la base de datos
     """
-    chromadb_manager = ChromaDBManager()
+    chromadb_manager = ChromaDBManager(embeddings_model_name=EMBEDDING_MODEL)
     result = chromadb_manager.query(
         query=agent_state.query,
         metadata={"filename": "consultorio.pdf"},
@@ -122,4 +153,5 @@ def response_node(agent_state: AgentState) -> AgentState:
     )
     new_message = AIMessage(content=llm_response.content)
     agent_state.messages = [new_message]
+    # agent_state.messages.append(new_message)
     return agent_state
