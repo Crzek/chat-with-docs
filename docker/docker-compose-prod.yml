@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  # apiocr:
+  #   image: fastapi:0.1-pro
+  #   container_name: fastapi-py # poner el nombre del contenedor
+  #   build:
+  #     context: ../../ #ruta del dockerfile, es como hacer cd
+  #     dockerfile: docker/pro/Dockerfile.python.prod #nombre del dockerfile
+  #   restart: always #reiniciar el contenedor siempre
+  #   ports:
+  #     - "8000:8000" #puesto APP
+  #   depends_on:
+  #     - db-postgres
+  #   volumes:
+  #     - ../../:/usr/src
+  #   networks:
+  #     - net-apiocr
+  #   # command: python main.py
+  #   command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
+
+  db-postgres:
+    image: postgres:12.17-alpine3.19
+    container_name: pgsql-alpine
+    restart: always
+    env_file:
+      - ../.env
+    ports:
+      - "5432:5432"
+    networks:
+      - net-chat-doc
+    volumes:
+      # type bind
+      # - ./data/postgres-data:/var/lib/postgresql/data
+      # tipo volume
+      - postgres-chat-doc:/var/lib/postgresql/data
+
+  # solo par visualizar la base de datos
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    restart: always
+    ports:
+      - "8002:8080"
+    networks:
+      - net-chat-doc
+
+#definimos los volumenes, para usaralos arr
+volumes:
+  postgres-chat-doc:
+
+
+networks:
+  net-chat-doc:
+    driver: bridge
