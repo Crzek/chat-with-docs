@@ -3,7 +3,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from typing import Literal
 
 from src.db.chromadb import ChromaDBManager
-from src.config.settings import OPENAI_MODEL_LOWER, EMBEDDING_MODEL
+from src.config.settings import env
 from src.schema.schemas import LanguagueOutput, AgentState, QuestionType
 from src.utils.tools import create_appointment
 
@@ -12,7 +12,7 @@ def detect_language_node(agent_state: AgentState) -> AgentState:
     """
     detect_language_node: detecta y guarda el idioma. Nada más.
     """
-    llm = ChatOpenAI(model=OPENAI_MODEL_LOWER)
+    llm = ChatOpenAI(model=env.openai_model)
 
     # definir el tipo de salida
     llm_parcer = llm.with_structured_output(LanguagueOutput)
@@ -35,7 +35,7 @@ def detect_question_type_node(agent_state: AgentState) -> Literal["appointment_n
     user_message = agent_state.messages[-1].content
     print(f"Mensaje del usuario: {user_message}\n")
     # print(agent_state.message)
-    llm = ChatOpenAI(model=OPENAI_MODEL_LOWER)
+    llm = ChatOpenAI(model=env.openai_model)
 
     # definir el tipo de salida
     llm_parcer = llm.with_structured_output(QuestionType)
@@ -66,7 +66,9 @@ def appointment_node(agent_state: AgentState) -> AgentState:
     """
     print("Appointment node")
     tools = [create_appointment]
-    llm = ChatOpenAI(model=OPENAI_MODEL_LOWER).bind_tools(tools)
+    # agrego tools a la IA
+    # tools son funciones que se pueden llamar
+    llm = ChatOpenAI(model=env.openai_model).bind_tools(tools)
     response_llm = llm.invoke(agent_state.messages)
 
     # tines que tener al menos una llamada a tool
@@ -96,7 +98,7 @@ def query_node(agent_state: AgentState) -> AgentState:
     history = agent_state.messages[:-1]  # todos menos el último
     user_message = agent_state.messages[-1]  # el último
 
-    llm = ChatOpenAI(model=OPENAI_MODEL_LOWER)
+    llm = ChatOpenAI(model=env.openai_model)
     response = llm.invoke(
         f"""
     Eres un agente que debe generar un query para que se realice una búsqueda vectorial,
@@ -122,7 +124,8 @@ def rag_node(agent_state: AgentState) -> AgentState:
     """
     Buscar vectores que tengo guardados en la base de datos
     """
-    chromadb_manager = ChromaDBManager(embeddings_model_name=EMBEDDING_MODEL)
+    chromadb_manager = ChromaDBManager(
+        embeddings_model_name=env.embedding_model)
     result = chromadb_manager.query(
         query=agent_state.query,
         metadata={"filename": "consultorio.pdf"},
@@ -135,7 +138,7 @@ def rag_node(agent_state: AgentState) -> AgentState:
 def response_node(agent_state: AgentState) -> AgentState:
     history = agent_state.messages[:-1]
     user_message = agent_state.messages[-1]
-    llm = ChatOpenAI(model=OPENAI_MODEL_LOWER)
+    llm = ChatOpenAI(model=env.openai_model)
     llm_response = llm.invoke(
         f"""
         Eres un asistente que responde preguntas de los usuarios relacionadas a un consultorio médico,

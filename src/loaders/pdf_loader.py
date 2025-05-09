@@ -2,6 +2,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from src.utils.text_splitters import split_text
 from pydantic import BaseModel
 import os
+from uuid import uuid4
 
 
 class SplitConfig(BaseModel):
@@ -45,7 +46,10 @@ class Load_PDF:
             pages_content: list[str],
             split_config: SplitConfig  # configuracion para dividir el texto
     ) -> tuple[list, list]:
-        """ Dividir el texto en chunks y asociarlos con las páginas """
+        """ Dividir el texto en chunks y asociarlos con las páginas\n 
+            return:
+                ([chunks], [metadatas])
+        """
         chunks = []
         metadatas = []
         for page_number, page_content in enumerate(pages_content):
@@ -62,6 +66,13 @@ class Load_PDF:
                 [{"filename": self.file_name, "page": page_number + 1}] * len(page_chunks))
 
         return chunks, metadatas
+
+    def get_uuids_for_chucks(
+            self,
+            chunks: list
+    ) -> list[str]:
+        return [str(uuid4())
+                for _ in range(len(chunks))]  # crear una lista de ids
 
 
 def load_pdf(file_path):
