@@ -1,6 +1,6 @@
 {
-    "dependencies": "./pyproject.toml",
+    "dependencies": "./pdm.lock",
     "graphs": {
-        "my_agent_cualquiera": "./main.py:app_graph"
+        "my_agent_cualquiera": "./langgraph_run.py:graph"
     }
 }
