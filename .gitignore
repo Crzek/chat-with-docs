@@ -7,3 +7,9 @@ __pycache__/
 
 .venv/
 .env
+
+# base de datos Vectorial
+chroma_db/
+
+# archvios uploads
+data/
