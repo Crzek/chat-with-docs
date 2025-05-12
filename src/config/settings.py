@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from dotenv import load_dotenv
@@ -6,11 +8,15 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
+    BASE_DIR: str = str(Path(__file__).parent.parent.parent.absolute())
+    DIR_UPLOAD: str = BASE_DIR+"/data/uploads"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="allow",  # permite variables no definidas
     )
+
     pdf_path: str = Field(default="rag/consultorio.pdf")
     db_path: str = Field(default="chromadb.db")
     openai_model: str = Field(default="gpt-4.1-nano")
@@ -28,7 +34,8 @@ class Settings(BaseSettings):
     upload_dir: str
 
     # Base de datos
-    postgres_db_name: str
+    postgres_db: str
+    "nombre de la bd en pg"
     postgres_user: str
     postgres_password: str
     postgres_host: str

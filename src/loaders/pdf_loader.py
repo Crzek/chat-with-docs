@@ -12,11 +12,12 @@ class SplitConfig(BaseModel):
 
 
 class Load_PDF:
-    def __init__(self, file_path: str, lazy_load: bool = True) -> None:
+    def __init__(self, file_path: str, id: str, lazy_load: bool = True) -> None:
         self.loader = PyPDFLoader(file_path)
         self.islady = lazy_load
         self.file_path = file_path
         self.file_name = os.path.basename(file_path)
+        self.id = id
 
     def load(self):
         return self.loader.load()
@@ -63,7 +64,11 @@ class Load_PDF:
             # agregar los chunks a la lista principal
             chunks.extend(page_chunks)
             metadatas.extend(
-                [{"filename": self.file_name, "page": page_number + 1}] * len(page_chunks))
+                [{
+                    "file_id": self.id,
+                    "filename": self.file_name,
+                    "page": page_number + 1,
+                }] * len(page_chunks))
 
         return chunks, metadatas
 

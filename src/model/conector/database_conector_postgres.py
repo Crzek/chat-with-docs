@@ -27,5 +27,7 @@ class DatabaseConectorPostgres:
         # )
         self.engine = self.create_engine()
 
+        print("\n\n\n\ ", self.full_url)
+
     def create_engine(self):
         return create_engine(self.full_url)

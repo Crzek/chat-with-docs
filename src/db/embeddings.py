@@ -3,6 +3,9 @@ from src.config.settings import env
 
 
 def get_db_embeddings() -> ChromaDBManager:
+    """
+    instancia chromamanager
+    """
     return ChromaDBManager(
         embeddings_model_name=env.embedding_model)
 
@@ -10,7 +13,7 @@ def get_db_embeddings() -> ChromaDBManager:
 def generate_embeddings_chromadb(
         chunks: list,
         metadatas: list,
-        uuids: list
+        uuids: list,
 ) -> None:
     chromadb_manager = get_db_embeddings()
 
@@ -25,7 +28,7 @@ def generate_embeddings_chromadb(
 
 
 def drop_embeddings_chromadb(
-        metadata: dict
+        metadata: dict,
 ):
     """
     e.g 

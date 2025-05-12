@@ -10,7 +10,7 @@ from src.config.settings import env
 
 # Configuracion de la BAs de datos
 db_config = DatabaseConfig(
-    nameDatabase=env.postgres_db_name,
+    nameDatabase=env.postgres_db,
     user=env.postgres_user,
     password=env.postgres_password,
     host=env.postgres_host,

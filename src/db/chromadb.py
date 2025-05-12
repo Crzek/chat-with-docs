@@ -3,7 +3,11 @@ from langchain_chroma import Chroma
 
 
 class ChromaDBManager:
-    def __init__(self, db_path: str = "chroma_db", embeddings_model_name: str = "text-embedding-3-small"):
+    def __init__(
+            self,
+            db_path: str = "chroma_db",
+            embeddings_model_name: str = "text-embedding-3-small"
+    ):
         # Cargar el modelo de embeddings
         self.embeddings = OpenAIEmbeddings(model=embeddings_model_name)
         # Cargar la base de datos
@@ -30,7 +34,10 @@ class ChromaDBManager:
         self,
         metadata: dict,
     ):
-        """Buscar elementos en la base de datos (vector store)"""
+        """
+        Buscar elementos en la base de datos (vector store)\n
+        Tener en cuenta el `n_results` ya que sera el contexto que se pasa al LLM
+        """
         result = self.vector_store.get(
             where=metadata,
             # el resultado incluye los embeddings y los documentos
@@ -59,7 +66,7 @@ class ChromaDBManager:
         )
         return resul_query
 
-    def drop_collection(self, metadata: dict):
+    def drop_collection(self):
         """Eliminar la base de datos (vector store)"""
         self.vector_store.delete_collection()
 

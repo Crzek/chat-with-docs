@@ -6,7 +6,7 @@ from src.schema.schemas import AgentState
 from src.schema.response import CostumJSONResponse
 
 
-chat_router = APIRouter()
+chat_router = APIRouter(prefix="/chat", tags=["chat"])
 
 
 class UserMessage(BaseModel):

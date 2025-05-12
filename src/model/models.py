@@ -5,11 +5,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID, BYTEA
 from sqlalchemy.orm import relationship
+from src.config.settings import env
 
 from . import Base  # __init__
 
 
-class User(Base):
+class UserDB(Base):
     __tablename__ = "users"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -19,11 +20,11 @@ class User(Base):
     created_at = Column(DateTime(timezone=True),
                         default=datetime.now(timezone.utc))
 
-    files = relationship("File", back_populates="user")
-    messages = relationship("Message", back_populates="user")
+    files = relationship("FileDB", back_populates="user")
+    messages = relationship("MessageDB", back_populates="user")
 
 
-class File(Base):
+class FileDB(Base):
     __tablename__ = "files"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -33,12 +34,16 @@ class File(Base):
     file_path = Column(String, nullable=False)
     uploaded_at = Column(DateTime(timezone=True),
                          default=datetime.now(timezone.utc))
+    file_metadata = Column(Text, nullable=True)
 
-    user = relationship("User", back_populates="files")
-    messages = relationship("Message", back_populates="file")
+    user = relationship("UserDB", back_populates="files")
+    messages = relationship("MessageDB", back_populates="file")
+
+    def get_abs_path(self) -> str:
+        return env.BASE_DIR + self.file_name
 
 
-class Message(Base):
+class MessageDB(Base):
     __tablename__ = "messages"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -48,5 +53,5 @@ class Message(Base):
     created_at = Column(DateTime(timezone=True),
                         default=datetime.now(timezone.utc))
 
-    user = relationship("User", back_populates="messages")
-    file = relationship("File", back_populates="messages")
+    user = relationship("UserDB", back_populates="messages")
+    file = relationship("FileDB", back_populates="messages")
