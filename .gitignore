@@ -13,3 +13,6 @@ chroma_db/
 
 # archvios uploads
 data/
+
+#langgraph
+.langgraph_api/

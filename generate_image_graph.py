@@ -1,3 +1,4 @@
-from src.graph.rag_graph import _
+from src.graph.rag_graph import generate_graph
 
-print("Generate image")
+image = generate_graph()
+print("Graph image generated successfully.")

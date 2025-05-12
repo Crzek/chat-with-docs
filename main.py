@@ -1,32 +1,25 @@
-from config.settings import PDF_PATH, DB_PATH
-from loaders.pdf_loader import Load_PDF
-from src.db.chromadb import ChromaDBManager
-from prompts.templates import get_sales_assistant_prompt
-from langchain_openai import ChatOpenAI
-
-# Cargar el PDF
-# dataPDF = load_pdf(PDF_PATH)
-dataPDF = Load_PDF(PDF_PATH)
-pages_content = dataPDF.get_pages_content()
-chunks, metadata = dataPDF.get_chunks_and_metadata(pages_content)
+from fastapi import FastAPI
+from src.api import chat, uploads, embedding
+from src.config.settings import env
+from src.model import Base, engine
 
 
-# Instanciar la base de datos
-chromadb_manager = ChromaDBManager(DB_PATH)
+def setup_app(app: FastAPI):
+    # DB
+    Base.metadata.create_all(engine)
 
-# Consultar la base de datos
-query = "Que productos tienes?"
-result = chromadb_manager.query(
-    query=query, metadata={"filename": "lista_productos.pdf"})
+    # Routes
+    app.include_router(uploads.upload_router)
+    app.include_router(chat.chat_router)
+    app.include_router(embedding.embedding_router)
 
-# Crear el contexto
-context = "\n".join([doc.page_content for doc in result])
 
-# Crear el prompt y ejecutar la cadena
-prompt_template = get_sales_assistant_prompt()
-llm = ChatOpenAI(model="gpt-4.1-nano", max_completion_tokens=2000)
-chain = prompt_template | llm
-chain_response = chain.invoke({"context": context, "query": query})
+app = FastAPI(root_path="/api/v1")
+setup_app(app)
 
-print("Context:", context)
-print("Chain response:", chain_response.content)
+
+if __name__ == '__main__':
+    import uvicorn
+    from src.config.settings import env
+
+    uvicorn.run("main:app", host=env.app_host, reload=True, workers=1)

@@ -1,5 +1,5 @@
 from src.loaders.pdf_loader import SplitConfig
-from src.config.settings import PDF_PATH, EMBEDDING_MODEL
+from src.config.settings import PDF_PATH, e
 from src.loaders.pdf_loader import Load_PDF
 from src.db.chromadb import ChromaDBManager
 from uuid import uuid4
