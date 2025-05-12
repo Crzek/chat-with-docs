@@ -1,0 +1,10 @@
+En el Query tengo que ver o definier algun algoritmo para que segun la longitud
+del file coja 5 chunks si tiene 20 chunks totales o 20 si tiene 100 chunks.
+nota: el nuemro resultados no puede superar al a los chucnks.
+e.g: chunks:10
+n_result: 1>10
+
+No se recomienda coger todo el contenido porque los vectores se alejan de la Query
+Mejor numero intermdia.
+20%-40% ->small chunks de 10 chunks
+0 - 30% -> long chunks de 100 chunks

@@ -1,1 +1,0 @@
-from .database_conector_postgres import DatabaseConectorPostgres

@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from src.api import chat, uploads, embedding
 from src.config.settings import env
-from src.model import Base, engine
+# from src.model import Base, engine
 
 
 def setup_app(app: FastAPI):
     # DB
-    Base.metadata.create_all(engine)
+    # Base.metadata.create_all(engine)
 
     # Routes
     app.include_router(uploads.upload_router)

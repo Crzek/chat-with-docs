@@ -129,7 +129,7 @@ def rag_node(agent_state: AgentState) -> AgentState:
     result = chromadb_manager.query(
         query=agent_state.query,
         metadata={"filename": "consultorio.pdf"},
-        n_results=2
+        n_results=20
     )
     agent_state.context = "\n\n".join([doc.page_content for doc in result])
     return agent_state

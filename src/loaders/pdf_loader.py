@@ -1,3 +1,4 @@
+from typing import Optional
 from langchain_community.document_loaders import PyPDFLoader
 from src.utils.text_splitters import split_text
 from pydantic import BaseModel
@@ -12,12 +13,20 @@ class SplitConfig(BaseModel):
 
 
 class Load_PDF:
-    def __init__(self, file_path: str, id: str, lazy_load: bool = True) -> None:
+    def __init__(
+            self,
+            file_path: str,
+            idd: Optional[str] = None,
+            lazy_load: bool = True) -> None:
         self.loader = PyPDFLoader(file_path)
         self.islady = lazy_load
         self.file_path = file_path
         self.file_name = os.path.basename(file_path)
-        self.id = id
+
+        if not idd:
+            self.id = str(uuid4())
+        else:
+            self.id = idd
 
     def load(self):
         return self.loader.load()
