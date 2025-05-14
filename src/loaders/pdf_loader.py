@@ -17,12 +17,13 @@ class Load_PDF:
             self,
             file_path: str,
             idd: Optional[str] = None,
-            lazy_load: bool = True) -> None:
+            lazy_load: bool = True
+    ) -> None:
         self.loader = PyPDFLoader(file_path)
         self.islady = lazy_load
         self.file_path = file_path
         self.file_name = os.path.basename(file_path)
-
+        self.len_chunks = None
         if not idd:
             self.id = str(uuid4())
         else:
@@ -36,6 +37,7 @@ class Load_PDF:
 
     def get_pages_content(self) -> list[str]:
         """
+        return a list of content in each page
         tambien puedes simplificar de esta manera:
 
         ```python
@@ -51,6 +53,10 @@ class Load_PDF:
 
         return pages_content
 
+    def get_total_pages(self) -> int:
+        "return a len docuemnt"
+        return len(self.get_pages_content())
+
     def get_chunks_and_metadata(
             self,
             pages_content: list[str],
@@ -62,6 +68,9 @@ class Load_PDF:
         """
         chunks = []
         metadatas = []
+        total_pages = len(pages_content)
+
+        # TODO: REvisar len_chunks de metadata
         for page_number, page_content in enumerate(pages_content):
             # dividir el texto de la página
             page_chunks = split_text(
@@ -72,13 +81,17 @@ class Load_PDF:
             )
             # agregar los chunks a la lista principal
             chunks.extend(page_chunks)
+            # CREATE METADATA CHUNKS
             metadatas.extend(
                 [{
                     "file_id": self.id,
-                    "filename": self.file_name,
+                    "file_name": self.file_name,
                     "page": page_number + 1,
+                    "len_chunks_in_page": len(chunks),
+                    "total_pages": total_pages,
                 }] * len(page_chunks))
 
+        self.len_chunks = len(chunks)
         return chunks, metadatas
 
     def get_uuids_for_chucks(
@@ -87,6 +100,13 @@ class Load_PDF:
     ) -> list[str]:
         return [str(uuid4())
                 for _ in range(len(chunks))]  # crear una lista de ids
+
+    def get_len_docs(self):
+        """
+        return the len of the document
+        """
+        docs = self.get_pages_content()
+        return len(docs)
 
 
 def load_pdf(file_path):

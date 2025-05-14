@@ -13,6 +13,7 @@ from uuid import uuid4
 from src.schema.response import ConfigSplitEmbedding
 from src.utils.check_files import verify_file_exists, create_abs_path
 from src.db.embeddings import get_db_embeddings
+from src.config.db_motor import connection
 
 
 embedding_router = APIRouter(prefix="/embdeddings", tags=["embedding"])
@@ -43,16 +44,26 @@ async def create_embeddings(file_name: str, body: ConfigSplitEmbedding):
     # la meta data debe de ser de type: str, int ,flaot, bool
     generate_embeddings_chromadb(chunks, metadatas, uuids)
 
-    # Aquí, puedes guardar la información de los embeddings si es necesario en la base de datos
-
-    return CostumJSONResponse(
-        data={
+    # Guardar en Mongodb
+    try:
+        db = await connection()
+        await db.files.insert_one({
             "file_id": load_pdf.id,
             "file_name": file_name,
-            "chunks": len(chunks),
-            "metadata_chunk_1": metadatas[1]},
-        message="Embeddings created"
-    )
+            "total_page": metadatas[0]["total_pages"],
+            "len_chunks": len(chunks),
+        })
+        return CostumJSONResponse(
+            data={
+                "file_id": load_pdf.id,
+                "file_name": file_name,
+                "chunks": len(chunks),
+                "metadata_chunk_1": metadatas[1]},
+            message="Embeddings created"
+        )
+
+    except Exception as e:
+        return CostumJSONResponse(message=f"Error in db: {e}", error="Error Mongo db")
 
 
 @embedding_router.delete("/{file_name}")
@@ -63,19 +74,24 @@ async def detele_embeddings(file_name: str):
     deberiasmos crear otra bd vectorial
     """
     try:
-
+        # elimnar de vectore store
         chromadb_manager = get_db_embeddings()
         # para eliminar documentos
         chromadb_manager.drop(
-            metadata={
-                "filename":
-                file_name
-            }
+            metadata={"file_name": file_name}
         )
-        return CostumJSONResponse(
-            data=None,
-            message=f"Delete chucks files: {file_name}"
-        )
+
+        # emininar de mongoDb
+        try:
+            db = await connection()
+            await db.files.delete_one({"file_name": file_name})
+
+            return CostumJSONResponse(
+                data=None,
+                message=f"Delete chucks files: {file_name}"
+            )
+        except Exception as e:
+            return CostumJSONResponse(message=f"Error in db: {e}", error="Error Mongo db")
 
     except Exception as e:
         return CostumJSONResponse(

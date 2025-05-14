@@ -32,7 +32,7 @@ def drop_embeddings_chromadb(
 ):
     """
     e.g 
-        `metadata={"filename": "lista_productos.pdf"}`
+        `metadata={"file_name": "lista_productos.pdf"}`
     """
     chromadb_manager = get_db_embeddings()
     # # para eliminar documentos
