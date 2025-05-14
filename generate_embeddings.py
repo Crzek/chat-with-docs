@@ -1,11 +1,11 @@
 from src.loaders.pdf_loader import SplitConfig
-from src.config.settings import PDF_PATH, e
+from src.config.settings import env
 from src.loaders.pdf_loader import Load_PDF
 from src.db.chromadb import ChromaDBManager
 from uuid import uuid4
 
 
-dataPDF = Load_PDF(PDF_PATH)
+dataPDF = Load_PDF(env.pdf_path)
 pages_content = dataPDF.get_pages_content()
 
 split_config = SplitConfig(model_name="gpt-4", chunk_size=50, chunk_overlap=10)
@@ -18,7 +18,7 @@ print("chunks:", len(chunks))
 # print("metadatas:", metadatas)
 # print("uuids:", uuids)
 # Instanciar la base de datos
-chromadb_manager = ChromaDBManager(embeddings_model_name=EMBEDDING_MODEL)
+chromadb_manager = ChromaDBManager(embeddings_model_name=env.embedding_model)
 
 # almacenar los chunks en la base de datos
 # Esto se debe ejecutar una sola vez

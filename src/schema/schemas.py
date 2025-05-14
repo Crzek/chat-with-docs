@@ -32,3 +32,6 @@ class AgentState(BaseModel):
     messages: Annotated[list[AnyMessage], add_messages] = []
     # question_type: QuestionType = "question"
     question_type: QuestionType = QuestionType(question_type="question")
+    len_chunks_query: int = None
+    metadata: dict = None
+    n_results: int = None

@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from pydantic import Field, Secret
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,16 +33,21 @@ class Settings(BaseSettings):
 
     upload_dir: str
 
-    # Base de datos
-    postgres_db: str
-    "nombre de la bd en pg"
-    postgres_user: str
-    postgres_password: str
-    postgres_host: str
-    postgres_port: int
+    # # Base de datos
+    # postgres_db: str
+    # # nombre de la bd en pg
+    # postgres_user: str
+    # postgres_password: str
+    # postgres_host: str
+    # postgres_port: int
+
+    # mongodb
+    mongo_initdb_root_username: str = Field(env="MONGO_INITDB_ROOT_USERNAME")
+    mongo_initdb_root_password: str = Field(env="MONGO_INITDB_ROOT_PASSWORD")
+    mongo_initdb_full_uri: str = Field(env="MONGO_INITDB_FULL_URI")
+    mongo_db_name: str = Field(env="MONGO_DB_NAME")
 
 
 # Instancia única
-
-
 env = Settings()
+print("URI mongo:", env.mongo_initdb_full_uri)

@@ -8,23 +8,23 @@ from src.config.settings import env
 from src.schema.response import CostumJSONResponse
 
 # modelos de base de datos
-from src.model.models import UserDB, FileDB, MessageDB
-from src.model import Base, session
 from uuid import uuid4
 
 from src.schema.response import ConfigSplitEmbedding
+from src.utils.check_files import verify_file_exists, create_abs_path
+from src.db.embeddings import get_db_embeddings
+from src.config.db_motor import connection
 
-embedding_router = APIRouter(prefix="/embdedding", tags=["embedding"])
+
+embedding_router = APIRouter(prefix="/embdeddings", tags=["embedding"])
 
 
-@embedding_router.post("/{file_id}")
-async def create_embeddings(file_id: str, body: ConfigSplitEmbedding):
-    file: Optional[FileDB] = session.query(
-        File).filter(File.id == file_id).first()
-
-    if not file:
+@embedding_router.post("/{file_name}")
+async def create_embeddings(file_name: str, body: ConfigSplitEmbedding):
+    exist = verify_file_exists(file_name)
+    if not exist:
         raise HTTPException(
-            status_code=404, detail="Archivo no encontrado en la base de datos.")
+            status_code=404, detail=f"{file_name} Not Found")
 
     # Configurar el SplitConfig
     split_config = SplitConfig(
@@ -32,50 +32,69 @@ async def create_embeddings(file_id: str, body: ConfigSplitEmbedding):
         chunk_size=body.chunk_size,
         chunk_overlap=body.chunk_overlap
     )
-
+    abs_path_file = create_abs_path(file_name)
     # Extraer texto del archivo
-    load_pdf = Load_PDF(file_path=file.file_path, id=file.id)
+    load_pdf = Load_PDF(file_path=abs_path_file)
     pages_pdf = load_pdf.get_pages_content()  # optenemos paguinas
     chunks, metadatas = load_pdf.get_chunks_and_metadata(
         pages_content=pages_pdf, split_config=split_config)
     uuids = load_pdf.get_uuids_for_chucks(chunks)
 
     # Generar embeddings y guardarlos en el vectorstore
+    # la meta data debe de ser de type: str, int ,flaot, bool
     generate_embeddings_chromadb(chunks, metadatas, uuids)
 
-    # Aquí, puedes guardar la información de los embeddings si es necesario en la base de datos
+    # Guardar en Mongodb
+    try:
+        db = await connection()
+        await db.files.insert_one({
+            "file_id": load_pdf.id,
+            "file_name": file_name,
+            "total_page": metadatas[0]["total_pages"],
+            "len_chunks": len(chunks),
+        })
+        return CostumJSONResponse(
+            data={
+                "file_id": load_pdf.id,
+                "file_name": file_name,
+                "chunks": len(chunks),
+                "metadata_chunk_1": metadatas[1]},
+            message="Embeddings created"
+        )
 
-    return CostumJSONResponse(
-        data={"file_id": file.id, "metadata_file": metadatas},
-        message="Embeddings generados y guardados correctamente."
-    )
+    except Exception as e:
+        return CostumJSONResponse(message=f"Error in db: {e}", error="Error Mongo db")
 
 
-@embedding_router.delete("/{file_id}")
-async def detele_embeddings(file_id: str):
-    file: Optional[FileDB] = session.query(
-        File).filter(File.id == file_id).first()
+@embedding_router.delete("/{file_name}")
+async def detele_embeddings(file_name: str):
+    """
+    Eliminar collections
+    si queremos guardar otro tipo de datos como img, audio
+    deberiasmos crear otra bd vectorial
+    """
+    try:
+        # elimnar de vectore store
+        chromadb_manager = get_db_embeddings()
+        # para eliminar documentos
+        chromadb_manager.drop(
+            metadata={"file_name": file_name}
+        )
 
-    if not file:
-        raise HTTPException(
-            status_code=404, detail="Archivo no encontrado en la base de datos.")
+        # emininar de mongoDb
+        try:
+            db = await connection()
+            await db.files.delete_one({"file_name": file_name})
 
-    # remover file de los embeddigs (db vector)
-    metadata_dict = json.loads(file.file_metadata)
-    drop_embeddings_chromadb(metadata_dict)
+            return CostumJSONResponse(
+                data=None,
+                message=f"Delete chucks files: {file_name}"
+            )
+        except Exception as e:
+            return CostumJSONResponse(message=f"Error in db: {e}", error="Error Mongo db")
 
-    # remover files del sistema de archivo
-    file_path_abs = file.get_abs_path()
-    # os.remove(env.DIR_UPLOAD+file.file_name)
-
-    # # remover del DB
-
-    # return CostumJSONResponse(
-    #     data={"file_id": file.id, "metadata_file": metadata_dict},
-    #     message="Embeddings generados y guardados correctamente."
-    # )
-    return CostumJSONResponse(
-        data={
-            "envBASE": file_path_abs
-        }
-    )
+    except Exception as e:
+        return CostumJSONResponse(
+            data=None,
+            message=f"Error Deleting: {e}"
+        )

@@ -65,23 +65,29 @@ def appointment_node(agent_state: AgentState) -> AgentState:
     Node that handles appointment scheduling.
     """
     print("Appointment node")
+    # crear una lista que contendra las funciones => tools
+    # [tool, tool,...]
     tools = [create_appointment]
+
     # agrego tools a la IA
     # tools son funciones que se pueden llamar
+    # insertamos tool con bind_tools
     llm = ChatOpenAI(model=env.openai_model).bind_tools(tools)
     response_llm = llm.invoke(agent_state.messages)
 
     # tines que tener al menos una llamada a tool
-    tool_calls = response_llm.tool_calls  # lista
+    tool_calls: list = response_llm.tool_calls  # lista
     if tool_calls:
         fuction_result = None  # guardar el resultado de la función
         for tool_call in tool_calls:
 
             # miramos si la llamada a la herramienta es la correcta
             # tools son funciones (que creas) que se pueden llamar
-            if tool_call["name"] == "create_appointment":
-                args = tool_call["args"]
-                # utilizamos la función que creamos
+            if tool_call["name"] == "create_appointment":  # tool se llama create_appointment
+                args = tool_call["args"]  # optener argumentos
+
+                # utilizamos la función que creamos,
+                # para guardar el resultado de lo tool
                 fuction_result = create_appointment.invoke(args)
 
         agent_state.messages.append(AIMessage(content=fuction_result))
@@ -122,15 +128,25 @@ def query_node(agent_state: AgentState) -> AgentState:
 
 def rag_node(agent_state: AgentState) -> AgentState:
     """
+    nodos con parametros adicionales
+    Se puede hacer creando atributos en el stado del agente.
     Buscar vectores que tengo guardados en la base de datos
     """
     chromadb_manager = ChromaDBManager(
         embeddings_model_name=env.embedding_model)
+
+    """
+    TODO:
+    Como son valores dinamicos hay que pasarlos por Estado del Agente
+    """
+    # TODO: hacer que dinaminco el file_name
     result = chromadb_manager.query(
         query=agent_state.query,
-        metadata={"filename": "consultorio.pdf"},
-        n_results=2
+        metadata=agent_state.metadata,
+        n_results=agent_state.n_results,
     )
+
+    # inserta en el contexto los resultados
     agent_state.context = "\n\n".join([doc.page_content for doc in result])
     return agent_state
 

@@ -1,5 +1,8 @@
 from langchain_core.tools import tool
 
+# Definir funcion que sera llamada
+# tool
+
 
 @tool
 def create_appointment(
