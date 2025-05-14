@@ -11,6 +11,16 @@ dev-venv/
 .vscode/
 README.md
 
+__pycache__/
+.langgraph_api/
+rag/
+src/_oldfiles/
+*.png
+*.lock
+*.toml
+TODO.txt
+.pdm-python
+
 #excluir docker dir
 # con / al final, solo el directorio raiz.
 docker/
