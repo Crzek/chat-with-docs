@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:1ee47b1825f3991e44023fa1a685021e4fa85ab0cab043ed4aaf0a3735dbdfe9"
+content_hash = "sha256:3efd4bf92e88e40cd696e4ad62442a18a4a1f5c35ea8863bc1d0f12c28ed999b"
 
 [[metadata.targets]]
 requires_python = "==3.13.*"
@@ -1917,7 +1917,7 @@ name = "python-multipart"
 version = "0.0.20"
 requires_python = ">=3.8"
 summary = "A streaming multipart parser for Python"
-groups = ["dev"]
+groups = ["default", "dev"]
 files = [
     {file = "python_multipart-0.0.20-py3-none-any.whl", hash = "sha256:8a62d3a8335e06589fe01f2a3e178cdcc632f3fbe0d492ad9ee0ec35aab1f104"},
     {file = "python_multipart-0.0.20.tar.gz", hash = "sha256:8dd0cab45b8e23064ae09147625994d090fa46f5b0d1e13af944c331a7fa9d13"},
