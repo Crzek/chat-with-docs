@@ -8,3 +8,7 @@ No se recomienda coger todo el contenido porque los vectores se alejan de la Que
 Mejor numero intermdia.
 20%-40% ->small chunks de 10 chunks
 0 - 30% -> long chunks de 100 chunks
+
+2
+generar un apikey para que solo yo pueda acceder
+

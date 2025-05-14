@@ -1,0 +1,27 @@
+# cualquier nivell profundidad sin / al final
+orcvenv
+__pychache__/
+venv/
+.venv/
+p-venv/
+venv2/
+dev-venv/
+
+# vscode
+.vscode/
+README.md
+
+#excluir docker dir
+# con / al final, solo el directorio raiz.
+docker/
+
+# todos los contenedores
+# dockerignore
+# docker-compose.yml
+# Dockerfile
+# Dockerfile.dev
+
+# git
+gitignore
+git/
+dev/

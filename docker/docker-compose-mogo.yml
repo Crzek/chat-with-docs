@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  api-chat-docs:
+    image: chat-doc:0.1
+    container_name: chat-doc # poner el nombre del contenedor
+    build:
+      #ruta del dockerfile, es como hacer cd (importante que apunte a la raiz de ptroyecto)
+      context: ../ 
+      dockerfile: docker/docker/Dockerfile #nombre del dockerfile
+    restart: always #reiniciar el contenedor siempre
+    env_file:
+      - ../.env
+    ports:
+      - "8010:8010" #puesto APP
+    depends_on:
+      - mongo
+    volumes:
+      - ../:/app
+    networks:
+      - net-chat-doc
+    # command: python main.py
+    command: gunicorn -w 2 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8010
+
+  mongo:
+    image: mongo
+    container_name: mongo-chat-doc
+    restart: always
+    ports:
+      - "27017:27017"
+    env_file:
+      - ../.env
+    volumes:
+      - mongo-chat-doc:/data/db
+
+
+#definimos los volumenes, para usaralos arr
+volumes:
+  mongo-chat-doc:
+
+
+networks:
+  net-chat-doc:
+    driver: bridge
