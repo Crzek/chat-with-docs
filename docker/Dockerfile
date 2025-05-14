@@ -30,7 +30,7 @@ ENV TZ=Europe/Madrid
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # guivicorn
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 # CMD ["gunicorn", "-w 4", "-k uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
 CMD [ "/bin/sh" ]
