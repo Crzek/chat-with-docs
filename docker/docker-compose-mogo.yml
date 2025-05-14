@@ -7,7 +7,7 @@ services:
     build:
       #ruta del dockerfile, es como hacer cd (importante que apunte a la raiz de ptroyecto)
       context: ../ 
-      dockerfile: docker/docker/Dockerfile #nombre del dockerfile
+      dockerfile: docker/Dockerfile #nombre del dockerfile
     restart: always #reiniciar el contenedor siempre
     env_file:
       - ../.env

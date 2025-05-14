@@ -16,10 +16,7 @@ __pycache__/
 rag/
 src/_oldfiles/
 *.png
-*.lock
-*.toml
 TODO.txt
-.pdm-python
 
 #excluir docker dir
 # con / al final, solo el directorio raiz.
