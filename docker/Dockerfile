@@ -1,5 +1,5 @@
 # Stage 1: Builder
-FROM python:3.13-slim-bullseye AS builder
+FROM python:3.13-slim-bookworm AS builder
 
 # PDM install
 RUN pip install --no-cache-dir pdm
@@ -13,7 +13,7 @@ RUN pdm export --prod --without-hashes -o requirements.txt
 
 # Stage 2: Final Image
 # --------------------
-FROM python:3.13-slim-bullseye
+FROM python:3.13-slim-bookworm
 
 WORKDIR /app
 
