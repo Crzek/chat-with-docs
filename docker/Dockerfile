@@ -22,7 +22,9 @@ COPY --from=builder /app/requirements.txt .
 
 # Instala las dependencias
 # RUN pip install --trusted-host pypi.python.org -r requirements.txt
+# necesario para copilar chroma-hnswlib con c++
 RUN apt update -y && apt upgrade -y && \
+    apt install -y build-essential gcc g++ && \
     pip install --upgrade pip 
 
 # Configurar la zona horaria 

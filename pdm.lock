@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:487c74ba27c8a351212d3c4da24f483747078b413e38ee1f5fc8f899fc659ecd"
+content_hash = "sha256:1ee47b1825f3991e44023fa1a685021e4fa85ab0cab043ed4aaf0a3735dbdfe9"
 
 [[metadata.targets]]
 requires_python = "==3.13.*"
@@ -1876,6 +1876,15 @@ marker = "sys_platform == \"win32\" and python_version >= \"3.8\""
 files = [
     {file = "pyreadline3-3.5.4-py3-none-any.whl", hash = "sha256:eaf8e6cc3c49bcccf145fc6067ba8643d1df34d604a1ec0eccbf7a18e6d3fae6"},
     {file = "pyreadline3-3.5.4.tar.gz", hash = "sha256:8d57d53039a1c75adba8e50dd3d992b28143480816187ea5efbd5c78e6c885b7"},
+]
+
+[[package]]
+name = "pysqlite3-binary"
+version = "0.5.4"
+summary = "DB-API 2.0 interface for Sqlite 3.x"
+groups = ["default"]
+files = [
+    {file = "pysqlite3_binary-0.5.4-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bb3653a0eb0ef5db2d0ed49d43b11ab4be24fdf5b2e65a39650fc59348e30dc6"},
 ]
 
 [[package]]
