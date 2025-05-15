@@ -32,6 +32,8 @@ services:
       - ../.env
     volumes:
       - mongo-chat-doc:/data/db
+    networks:
+      - net-chat-doc 
 
 
 #definimos los volumenes, para usaralos arr
