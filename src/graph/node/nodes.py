@@ -8,10 +8,11 @@ from src.schema.schemas import LanguagueOutput, AgentState, QuestionType
 from src.utils.tools import create_appointment
 
 
-def detect_language_node(agent_state: AgentState) -> AgentState:
+def detect_language_node(agent_state: AgentState, config: dict) -> AgentState:
     """
     detect_language_node: detecta y guarda el idioma. Nada más.
     """
+    language = config.get("language")
     llm = ChatOpenAI(model=env.openai_model)
 
     # definir el tipo de salida
@@ -90,7 +91,7 @@ def appointment_node(agent_state: AgentState) -> AgentState:
                 # para guardar el resultado de lo tool
                 fuction_result = create_appointment.invoke(args)
 
-        agent_state.messages.append(AIMessage(content=fuction_result))
+        # agent_state.messages.append(AIMessage(content=fuction_result))
         agent_state.messages = [AIMessage(content=fuction_result)]
 
     else:

@@ -54,6 +54,7 @@ async def ask_agent(request_body: UserMessage, file_name: str):
 
         # 1r msg de User
         user_message = HumanMessage(content=request_body.question)
+        from langchain_core.runnables import RunnableConfig
 
         # estado inicial del Agente
         initial_state = AgentState(
